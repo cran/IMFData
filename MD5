@@ -1,0 +1,14 @@
+f9c3dbfc39f91dfab01c21115feb31e1 *DESCRIPTION
+b1337cfe5ebb23be59092eea014c9050 *LICENSE
+4097153c6d8dfefdb598039bce55fe9a *NAMESPACE
+d5bc01eb88275ecdd3a665a30e78e906 *R/IMFData.R
+dcd5c66476d9e6cb175761aa20b36749 *README.md
+e9951fcdfa2aeee2b9107ddae5e833c5 *demo/00Index
+56fa28fa2f44dc09387db4c6560f5864 *demo/demoCodeSearch.R
+1d023b740d0c050ff3b7db06852bfa4e *demo/demoCompactDataMethod.R
+86d7719f1cd7a86efc0c451eac715d00 *demo/demoDataStructureMethod.R
+35ed6d44c24e4c4941609d59540e71f0 *demo/demoDataflowMethod.R
+c1173765cb2b214fa7c25f74474ba8a8 *man/CodeSearch.Rd
+aa2b2c87c3ad013f436563ca60a3bb93 *man/CompactDataMethod.Rd
+c93def505a64e4cbf255dbd31170e053 *man/DataStructureMethod.Rd
+b9b95a078cba47059021eba76fa35d95 *man/DataflowMethod.Rd
