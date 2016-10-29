@@ -162,6 +162,8 @@ CodeSearch <- function(available.codes, code, searchtext, search.value = TRUE, s
 #' @param enddate string. End date in format of "YYYY-mm-dd".
 #' @param checkquery logical. If true, it will check the database ID is
 #' available or not.
+#' @param verbose logical. If true, it will print the exact API call.
+#' @param tidy logical. If true, it will return a simple data fram.
 #'
 #' @return A data frame. The last column, \code{Obs}, is a time series data
 #' described by other columns.
@@ -181,6 +183,13 @@ CodeSearch <- function(available.codes, code, searchtext, search.value = TRUE, s
 #' GR.NGDP.query[,1:5]
 #' GR.NGDP.query$Obs[[1]]
 #' GR.NGDP.query$Obs[[2]]
+#'
+#' ## Example for verbose
+#' GR.NGDP.query <- CompactDataMethod(databaseID, queryfilter, startdate, enddate, verbose=TRUE)
+#'
+#' ## Example for tidy
+#' GR.NGDP.query <- CompactDataMethod(databaseID, queryfilter, startdate, enddate, tidy=TRUE)
+#' head(GR.NGDP.query)
 #'
 #' ## Quarterly, Germany, Norminal GDP in Euros, Norminal GDP in National Currency
 #' queryfilter <- list(CL_FREA="Q", CL_AREA_IFS="GR", CL_INDICATOR_IFS =c("NGDP_EUR","NGDP_XDC"))
@@ -231,7 +240,7 @@ CodeSearch <- function(available.codes, code, searchtext, search.value = TRUE, s
 
 CompactDataMethod <- function(databaseID, queryfilter=NULL,
                               startdate='2001-01-01', enddate='2001-12-31',
-                              checkquery = FALSE){
+                              checkquery = FALSE, verbose=FALSE, tidy=FALSE){
   if(checkquery){
     available.datasets <- DataflowMethod()$DatabaseID
     if (!is.element(databaseID, available.datasets)){
@@ -252,9 +261,17 @@ CompactDataMethod <- function(databaseID, queryfilter=NULL,
       unlist(plyr::llply(queryfilter,
                          function(x)(paste0(x, collapse="+")))), collapse=".")
   }
-  r <- httr::GET(paste0('http://dataservices.imf.org/REST/SDMX_JSON.svc/CompactData/',
-                  databaseID,'/',queryfilterstr,
-                  '?startPeriod=',startdate,'&endPeriod=',enddate))
+
+  APIstr <- paste0('http://dataservices.imf.org/REST/SDMX_JSON.svc/CompactData/',
+                    databaseID,'/',queryfilterstr,
+                    '?startPeriod=',startdate,'&endPeriod=',enddate)
+  r <- httr::GET(APIstr)
+
+  if(verbose){
+    cat('\nmaking API call:\n')
+    cat(APIstr)
+    cat('\n')
+  }
 
   if(httr::http_status(r)$reason != "OK"){
     stop(paste(unlist(httr::http_status(r))))
@@ -284,6 +301,15 @@ CompactDataMethod <- function(databaseID, queryfilter=NULL,
     ret.df$Obs <- list(r.parsed$CompactData$DataSet$Series$Obs)
     names(ret.df) <- names(r.parsed$CompactData$DataSet$Series)
     r.parsed$CompactData$DataSet$Series <- ret.df
+  }
+
+  if(tidy){
+    ret.df <- r.parsed$CompactData$DataSet$Series
+    for(i in 1:length(ret.df$Obs)){
+      ret.df$Obs[[i]] <- merge(ret.df$Obs[[i]], ret.df[i,1:(ncol(ret.df)-1)])
+    }
+    ret.df <- plyr::ldply(ret.df$Obs)
+    return(ret.df)
   }
 
   return(r.parsed$CompactData$DataSet$Series)
